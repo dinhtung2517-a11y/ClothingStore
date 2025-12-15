@@ -4,42 +4,78 @@
     <title>Chi tiết sản phẩm</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-dark text-light">
+
+<body style="background-color:#f8f5f1; color:#3a3a3a">
 
 <div class="container py-5">
+
     <!-- PRODUCT IMAGE -->
-    <img
-            th:src="${product.imageUrl != null ? product.imageUrl : 'https://via.placeholder.com/600x400?text=No+Image'}"
-            class="img-fluid rounded shadow mb-4"
-            style="max-height: 350px; object-fit: cover;"
-            alt="Product image"
-    />
+    <div class="text-center mb-4">
+        <img
+                th:src="${product.imageUrl != null && !#strings.isEmpty(product.imageUrl)
+                ? product.imageUrl
+                : 'https://via.placeholder.com/600x400?text=No+Image'}"
+                class="img-fluid rounded shadow"
+                style="max-height:380px; object-fit:cover;"
+                alt="Product image"
+        />
+    </div>
 
-    <h2 class="text-info" th:text="${product.name}"></h2>
-    <p th:text="${product.description}"></p>
+    <!-- PRODUCT INFO -->
+    <div class="bg-white p-4 rounded shadow-sm">
 
-    <form th:action="@{/cart/add}" method="post">
+        <h2 class="fw-bold text-success" th:text="${product.name}"></h2>
 
-        <div class="mb-3">
-            <label class="form-label">Phân loại</label>
-            <select name="variantId" class="form-select" required>
-                <option th:each="v : ${variants}"
-                        th:value="${v.id}"
-                        th:text="'Size ' + ${v.size} + ' - ' + ${v.color} + ' - ' +
-                                 ${#numbers.formatDecimal(v.price,0,'COMMA',0,'POINT')} + ' ₫'">
-                </option>
-            </select>
-        </div>
+        <p class="text-muted mt-2" th:text="${product.description}">
+            Mô tả sản phẩm
+        </p>
 
-        <div class="mb-3">
-            <label>Số lượng</label>
-            <input type="number" name="quantity" class="form-control"
-                   min="1" value="1">
-        </div>
+        <!-- PRICE RANGE -->
+        <p class="fs-5 fw-semibold text-danger">
+            Giá từ:
+            <span th:text="${#numbers.formatDecimal(minPrice,0,'COMMA',0,'POINT')}"></span> ₫
+            -
+            <span th:text="${#numbers.formatDecimal(maxPrice,0,'COMMA',0,'POINT')}"></span> ₫
+        </p>
 
-        <button type="submit" class="btn btn-info fw-bold">Thêm vào giỏ</button>
-        <a th:href="@{/products}" class="btn btn-outline-light ms-2">⬅ Quay lại</a>
-    </form>
+        <form th:action="@{/cart/add}" method="post">
+
+            <!-- VARIANTS -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Phân loại</label>
+                <select name="variantId" class="form-select" required>
+                    <option th:each="v : ${variants}"
+                            th:value="${v.id}"
+                            th:text="'Size ' + v.size + ' - ' + v.color + ' - ' +
+                                ${#numbers.formatDecimal(v.price,0,'COMMA',0,'POINT')} + ' ₫'"
+                            th:disabled="${v.stock == 0}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- QUANTITY -->
+            <div class="mb-3">
+                <label class="form-label">Số lượng</label>
+                <input type="number"
+                       name="quantity"
+                       class="form-control"
+                       min="1"
+                       value="1">
+            </div>
+
+            <!-- ACTIONS -->
+            <button type="submit" class="btn btn-success fw-bold">
+                Thêm vào giỏ
+            </button>
+
+            <a th:href="@{/products}"
+               class="btn btn-outline-secondary ms-2">
+                ⬅ Quay lại
+            </a>
+
+        </form>
+    </div>
+
 </div>
 
 </body>

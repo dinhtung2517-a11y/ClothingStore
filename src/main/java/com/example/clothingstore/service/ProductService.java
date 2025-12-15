@@ -6,6 +6,7 @@ import com.example.clothingstore.repository.ProductRepository;
 import com.example.clothingstore.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductVariantRepository variantRepository;
+    private final ProductVariantRepository productVariantRepository;
 
     public List<Product> getAllActiveProducts() {
         return productRepository.findByIsActiveTrue();
@@ -24,11 +25,12 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public List<ProductVariant> getVariantsByProduct(Long productId) {
-        return variantRepository.findByProductIdAndIsActiveTrue(productId);
+        return productVariantRepository.findByProductId(productId);
     }
 
     public ProductVariant getVariantById(Long variantId) {
-        return variantRepository.findById(variantId).orElse(null);
+        return productVariantRepository.findById(variantId).orElse(null);
     }
 }

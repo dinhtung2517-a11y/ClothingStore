@@ -1,24 +1,49 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Đơn hàng</title>
+    <title>Đơn hàng của bạn</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-dark text-light">
+
+<body style="background:#f8f5f1; color:#333">
 
 <div class="container py-5">
-    <h2 class="text-info text-center mb-4">📦 Đơn hàng của bạn</h2>
 
-    <ul class="list-group">
-        <li class="list-group-item bg-secondary text-light"
-            th:each="o : ${orders}">
-            <a th:href="@{/orders/{id}(id=${o.id})}"
-               class="text-info">
-                Đơn #<span th:text="${o.id}"></span> –
-                <span th:text="${o.status}"></span>
-            </a>
-        </li>
-    </ul>
+    <h2 class="text-success fw-bold mb-4">📦 Đơn hàng của bạn</h2>
+
+    <div th:if="${orders.isEmpty()}" class="alert alert-secondary">
+        Bạn chưa có đơn hàng nào.
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4" th:each="o : ${orders}">
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+                    <h6 class="fw-bold">Mã đơn: <span th:text="${o.id}"></span></h6>
+                    <p class="text-muted mb-1">
+                        Ngày tạo:
+                        <span th:text="${#temporals.format(o.createdAt, 'dd/MM/yyyy')}"></span>
+                    </p>
+
+                    <p class="fw-semibold text-danger">
+                        Tổng tiền:
+                        <span th:text="${#numbers.formatDecimal(o.totalPrice,0,'COMMA',0,'POINT')}"></span> ₫
+                    </p>
+
+                    <span class="badge bg-success" th:if="${o.status == 'COMPLETED'}">Hoàn thành</span>
+                    <span class="badge bg-warning" th:if="${o.status == 'PENDING'}">Đang xử lý</span>
+
+                    <a th:href="@{/orders/{id}(id=${o.id})}"
+                       class="btn btn-outline-success w-100 mt-3">
+                        Xem chi tiết
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
 </body>

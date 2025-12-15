@@ -29,7 +29,7 @@ public class OrderController {
 
     @PostMapping("/checkout")
     public String checkout() {
-        Order order = orderService.checkout(mockUser());
+        Order order = orderService.createOrderFromCart(mockUser());
         return "redirect:/orders/success/" + order.getId();
     }
 

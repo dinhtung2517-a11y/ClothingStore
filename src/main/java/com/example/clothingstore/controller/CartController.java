@@ -18,19 +18,26 @@ public class CartController {
     private final CartService cartService;
     private final UserRepository userRepository;
 
+    private User getCurrentUser(UserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        return userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
     @GetMapping
     public String viewCart(
             @AuthenticationPrincipal UserDetails userDetails,
             Model model
     ) {
+        User user = getCurrentUser(userDetails);
 
-        User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        model.addAttribute("cartItems",
-                cartService.getCartItems(user.getId()));
-        model.addAttribute("total",
-                cartService.calculateTotal(user.getId()));
+        model.addAttribute("cartItems", cartService.getCartItems(user.getId()));
+        model.addAttribute("total", cartService.calculateTotal(user.getId()));
 
         return "cart/cart";
     }
@@ -41,12 +48,8 @@ public class CartController {
             @RequestParam Long variantId,
             @RequestParam Integer quantity
     ) {
-
-        User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+        User user = getCurrentUser(userDetails);
         cartService.addToCart(user, variantId, quantity);
-
         return "redirect:/cart";
     }
 
@@ -55,12 +58,8 @@ public class CartController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam Long variantId
     ) {
-
-        User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+        User user = getCurrentUser(userDetails);
         cartService.removeFromCart(user.getId(), variantId);
-
         return "redirect:/cart";
     }
 
@@ -68,12 +67,8 @@ public class CartController {
     public String clear(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-
-        User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+        User user = getCurrentUser(userDetails);
         cartService.clearCart(user.getId());
-
         return "redirect:/cart";
     }
 }

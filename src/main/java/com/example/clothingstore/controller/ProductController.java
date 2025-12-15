@@ -1,10 +1,16 @@
 package com.example.clothingstore.controller;
 
+import com.example.clothingstore.entity.Product;
+import com.example.clothingstore.entity.ProductVariant;
 import com.example.clothingstore.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -13,23 +19,53 @@ public class ProductController {
 
     private final ProductService productService;
 
+    // =========================
+    // LIST PRODUCTS
+    // =========================
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("products", productService.getAllActiveProducts());
+        model.addAttribute("products",
+                productService.getAllActiveProducts());
         return "product/list";
     }
 
+    // =========================
+    // PRODUCT DETAIL
+    // =========================
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
 
-        var product = productService.getProductById(id);
+        Product product = productService.getProductById(id);
 
         if (product == null) {
             return "redirect:/products";
         }
 
+        List<ProductVariant> variants =
+                productService.getVariantsByProduct(id);
+
+        if (variants == null) {
+            variants = Collections.emptyList();
+        }
+
+        BigDecimal minPrice = variants.isEmpty()
+                ? BigDecimal.ZERO
+                : variants.stream()
+                .map(ProductVariant::getPrice)
+                .min(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal maxPrice = variants.isEmpty()
+                ? BigDecimal.ZERO
+                : variants.stream()
+                .map(ProductVariant::getPrice)
+                .max(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+
         model.addAttribute("product", product);
-        model.addAttribute("variants", productService.getVariantsByProduct(id));
+        model.addAttribute("variants", variants);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
 
         return "product/detail";
     }
