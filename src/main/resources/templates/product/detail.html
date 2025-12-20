@@ -11,14 +11,12 @@
 
     <!-- PRODUCT IMAGE -->
     <div class="text-center mb-4">
-        <img
-                th:src="${product.imageUrl != null && !#strings.isEmpty(product.imageUrl)
+        <img th:src="${(product.imageUrl != null and !#strings.isEmpty(product.imageUrl))
                 ? product.imageUrl
                 : 'https://via.placeholder.com/600x400?text=No+Image'}"
-                class="img-fluid rounded shadow"
-                style="max-height:380px; object-fit:cover;"
-                alt="Product image"
-        />
+             class="img-fluid rounded shadow"
+             style="max-height:380px; object-fit:cover;"
+             alt="Product image"/>
     </div>
 
     <!-- PRODUCT INFO -->
@@ -46,9 +44,10 @@
                 <select name="variantId" class="form-select" required>
                     <option th:each="v : ${variants}"
                             th:value="${v.id}"
-                            th:text="'Size ' + v.size + ' - ' + v.color + ' - ' +
-                                ${#numbers.formatDecimal(v.price,0,'COMMA',0,'POINT')} + ' ₫'"
-                            th:disabled="${v.stock == 0}">
+                            th:disabled="${v.stock == 0}"
+                            th:text="'Size ' + v.size
+                                    + ' - ' + v.color
+                                    + ' - ' + #numbers.formatDecimal(v.price,0,'COMMA',0,'POINT') + ' ₫'">
                     </option>
                 </select>
             </div>
@@ -60,11 +59,14 @@
                        name="quantity"
                        class="form-control"
                        min="1"
-                       value="1">
+                       value="1"
+                       th:disabled="${variants.isEmpty()}">
             </div>
 
             <!-- ACTIONS -->
-            <button type="submit" class="btn btn-success fw-bold">
+            <button type="submit"
+                    class="btn btn-success fw-bold"
+                    th:disabled="${variants.isEmpty()}">
                 Thêm vào giỏ
             </button>
 

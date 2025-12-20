@@ -36,7 +36,6 @@ public class ProductController {
     public String detail(@PathVariable Long id, Model model) {
 
         Product product = productService.getProductById(id);
-
         if (product == null) {
             return "redirect:/products";
         }
@@ -45,22 +44,23 @@ public class ProductController {
                 productService.getVariantsByProduct(id);
 
         if (variants == null) {
-            variants = Collections.emptyList();
+            variants = List.of(); // avoid 500
         }
 
-        BigDecimal minPrice = variants.isEmpty()
-                ? BigDecimal.ZERO
-                : variants.stream()
-                .map(ProductVariant::getPrice)
-                .min(BigDecimal::compareTo)
-                .orElse(BigDecimal.ZERO);
+        BigDecimal minPrice = BigDecimal.ZERO;
+        BigDecimal maxPrice = BigDecimal.ZERO;
 
-        BigDecimal maxPrice = variants.isEmpty()
-                ? BigDecimal.ZERO
-                : variants.stream()
-                .map(ProductVariant::getPrice)
-                .max(BigDecimal::compareTo)
-                .orElse(BigDecimal.ZERO);
+        if (!variants.isEmpty()) {
+            minPrice = variants.stream()
+                    .map(ProductVariant::getPrice)
+                    .min(BigDecimal::compareTo)
+                    .orElse(BigDecimal.ZERO);
+
+            maxPrice = variants.stream()
+                    .map(ProductVariant::getPrice)
+                    .max(BigDecimal::compareTo)
+                    .orElse(BigDecimal.ZERO);
+        }
 
         model.addAttribute("product", product);
         model.addAttribute("variants", variants);
@@ -69,4 +69,5 @@ public class ProductController {
 
         return "product/detail";
     }
+
 }

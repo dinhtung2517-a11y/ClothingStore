@@ -6,7 +6,6 @@ import com.example.clothingstore.repository.ProductRepository;
 import com.example.clothingstore.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 
@@ -25,7 +24,6 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
-    @Transactional
     public List<ProductVariant> getVariantsByProduct(Long productId) {
         return productVariantRepository.findByProductId(productId);
     }
